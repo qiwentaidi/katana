@@ -22,7 +22,10 @@ import (
 // Context is a single observed API operation with its full context.
 type Context struct {
 	// OperationID is a stable identity for the operation:
-	// sha256(method + pathTemplate + authMode), hex-truncated.
+	// sha256(method + pathTemplate), hex-truncated. Auth mode is
+	// deliberately not part of the identity so anonymous probes and
+	// authenticated samples of the same endpoint merge into one asset —
+	// the authorization comparative experiment needs exactly that linkage.
 	OperationID string `json:"operationId"`
 	Method      string `json:"method"`
 	// PathTemplate is the normalized path with dynamic segments replaced,
@@ -37,6 +40,9 @@ type Context struct {
 	Auth     AuthContext      `json:"auth"`
 	Response ResponseContext  `json:"response"`
 	Evidence []Evidence       `json:"evidence"`
+	// Observations counts how many runtime samples were merged into this
+	// context. A single observation is 1.
+	Observations int `json:"observations"`
 }
 
 // Parameter is one observed parameter with its location and confidence.
@@ -172,14 +178,15 @@ func Build(obs Observation) *Context {
 			ResourceType: obs.ResourceType,
 			Confidence:   "high",
 		}},
+		Observations: 1,
 	}
-	ctx.OperationID = operationID(method, pathTemplate, auth.Mode)
+	ctx.OperationID = operationID(method, pathTemplate)
 	return ctx
 }
 
 // operationID derives a stable identity for an observed operation.
-func operationID(method, pathTemplate, authMode string) string {
-	sum := sha256.Sum256([]byte(method + " " + pathTemplate + " " + authMode))
+func operationID(method, pathTemplate string) string {
+	sum := sha256.Sum256([]byte(method + " " + pathTemplate))
 	return hex.EncodeToString(sum[:])[:16]
 }
 
