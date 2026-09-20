@@ -176,6 +176,7 @@ func readFlags() (*goflags.FlagSet, error) {
 		flagSet.BoolVarP(&options.HeadlessNoIncognito, "no-incognito", "noi", false, "start headless chrome without incognito mode"),
 		flagSet.StringVarP(&options.ChromeWSUrl, "chrome-ws-url", "cwu", "", "use chrome browser instance launched elsewhere with the debugger listening at this URL"),
 		flagSet.BoolVarP(&options.XhrExtraction, "xhr-extraction", "xhr", false, "extract xhr request url,method in jsonl output"),
+		flagSet.BoolVarP(&options.APICapture, "api-capture", "apic", false, "capture full API request/response contexts (api_contexts) in jsonl output"),
 		flagSet.IntVarP(&options.MaxFailureCount, "max-failure-count", "mfc", 10, "maximum number of consecutive action failures before stopping"),
 		flagSet.BoolVarP(&options.EnableDiagnostics, "enable-diagnostics", "ed", false, "enable diagnostics"),
 		flagSet.StringVarP(&options.PageLoadStrategy, "page-load-strategy", "pls", "heuristic", "page load strategy (heuristic, load, domcontentloaded, networkidle, none)"),

@@ -163,6 +163,9 @@ type Options struct {
 	HeadlessNoIncognito bool
 	// XhrExtraction extract xhr requests
 	XhrExtraction bool
+	// APICapture captures full API request/response contexts (APIContext)
+	// for XHR/Fetch traffic observed in headless mode
+	APICapture bool
 	// HealthCheck determines if a self-healthcheck should be performed
 	HealthCheck bool
 	// PprofServer enables pprof server

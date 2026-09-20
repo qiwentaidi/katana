@@ -16,6 +16,7 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/projectdiscovery/gologger"
+	"github.com/projectdiscovery/katana/pkg/apicontext"
 	"github.com/projectdiscovery/katana/pkg/engine/common"
 	"github.com/projectdiscovery/katana/pkg/navigation"
 	"github.com/projectdiscovery/katana/pkg/utils"
@@ -63,6 +64,7 @@ func (c *Crawler) navigateRequest(s *common.CrawlSession, request *navigation.Re
 	})
 
 	xhrRequests := []navigation.Request{}
+	apiContexts := []*apicontext.Context{}
 	go pageRouter.Start(func(e *proto.FetchRequestPaused) error {
 		URL, err := urlutil.Parse(e.Request.URL)
 		if err != nil {
@@ -171,6 +173,30 @@ func (c *Crawler) navigateRequest(s *common.CrawlSession, request *navigation.Re
 				networkReq.Headers = utils.FlattenHeaders(requestHeaders)
 			}
 			xhrRequests = append(xhrRequests, networkReq)
+		}
+
+		// APIContext capture: keep the full request/response context of
+		// observed API calls (XHR/Fetch) so downstream consumers (Observed API
+		// Docs, authorization comparative experiments) can replay them.
+		if c.Options.Options.APICapture &&
+			(e.ResourceType == proto.NetworkResourceTypeXHR || e.ResourceType == proto.NetworkResourceTypeFetch) {
+			reqHeaders := utils.FlattenHeaders(httpreq.Header)
+			if len(reqHeaders) == 0 {
+				reqHeaders = utils.FlattenHeaders(requestHeaders)
+			}
+			if ctx := apicontext.Build(apicontext.Observation{
+				Method:       httpreq.Method,
+				URL:          httpreq.URL.String(),
+				PostData:     e.Request.PostData,
+				ReqHeaders:   reqHeaders,
+				RespStatus:   statusCode,
+				RespHeaders:  utils.FlattenHeaders(headers),
+				RespBody:     body,
+				ResourceType: string(e.ResourceType),
+				PageURL:      request.URL,
+			}); ctx != nil {
+				apiContexts = append(apiContexts, ctx)
+			}
 		}
 
 		// trim trailing /
@@ -414,6 +440,7 @@ func (c *Crawler) navigateRequest(s *common.CrawlSession, request *navigation.Re
 	}
 
 	response.XhrRequests = xhrRequests
+	response.APIContexts = apiContexts
 
 	// enqueue JS-triggered navigation URLs that were detected
 	navigatedURLs.Each(func(i int, navURL string) error {

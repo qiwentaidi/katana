@@ -6,6 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/projectdiscovery/katana/pkg/apicontext"
 )
 
 type Headers map[string]string
@@ -39,7 +40,8 @@ type Response struct {
 	Technologies       []string          `json:"technologies,omitempty"`
 	Raw                string            `json:"raw,omitempty"`
 	Forms              []Form            `json:"forms,omitempty"`
-	XhrRequests        []Request         `json:"xhr_requests,omitempty"`
+	XhrRequests        []Request             `json:"xhr_requests,omitempty"`
+	APIContexts        []*apicontext.Context `json:"api_contexts,omitempty"`
 	StoredResponsePath string            `json:"stored_response_path,omitempty"`
 	KnowledgeBase      map[string]any    `json:"knowledgebase,omitempty"`
 }
