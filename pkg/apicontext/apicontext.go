@@ -32,14 +32,14 @@ type Context struct {
 	// e.g. /api/users/{id}.
 	PathTemplate string `json:"pathTemplate"`
 	// ObservedURL is the concrete URL that was seen at runtime.
-	ObservedURL string     `json:"observedUrl"`
+	ObservedURL string      `json:"observedUrl"`
 	Parameters  []Parameter `json:"parameters,omitempty"`
 	RequestBody *BodySchema `json:"requestBody,omitempty"`
 	// Headers are the observed request headers with sensitive values redacted.
-	Headers map[string]string `json:"headers,omitempty"`
-	Auth     AuthContext      `json:"auth"`
-	Response ResponseContext  `json:"response"`
-	Evidence []Evidence       `json:"evidence"`
+	Headers  map[string]string `json:"headers,omitempty"`
+	Auth     AuthContext       `json:"auth"`
+	Response ResponseContext   `json:"response"`
+	Evidence []Evidence        `json:"evidence"`
 	// Observations counts how many runtime samples were merged into this
 	// context. A single observation is 1.
 	Observations int `json:"observations"`

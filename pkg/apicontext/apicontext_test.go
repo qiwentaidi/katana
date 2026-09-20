@@ -7,8 +7,8 @@ import (
 
 func TestBuildBasicXHR(t *testing.T) {
 	obs := Observation{
-		Method: "POST",
-		URL:    "https://example.com/api/users/123?page=1&token=abc123",
+		Method:   "POST",
+		URL:      "https://example.com/api/users/123?page=1&token=abc123",
 		PostData: `{"name":"alice","roleId":2,"password":"s3cret"}`,
 		ReqHeaders: map[string]string{
 			"Content-Type":  "application/json",
