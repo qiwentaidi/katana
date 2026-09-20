@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
 	mapsutil "github.com/projectdiscovery/utils/maps"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
 )
 
 // Writer is a writer that writes diagnostics to a directory

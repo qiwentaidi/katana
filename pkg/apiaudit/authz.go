@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/projectdiscovery/katana/pkg/apicontext"
+	"github.com/qiwentaidi/katana/pkg/apicontext"
 )
 
 // Sender executes an HTTP request and returns the response plus its body.

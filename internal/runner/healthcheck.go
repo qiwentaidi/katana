@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/projectdiscovery/goflags"
-	"github.com/projectdiscovery/katana/pkg/types"
 	fileutil "github.com/projectdiscovery/utils/file"
 	permissionutil "github.com/projectdiscovery/utils/permission"
+	"github.com/qiwentaidi/katana/pkg/types"
 )
 
 func DoHealthCheck(options *types.Options, flagSet *goflags.FlagSet) string {

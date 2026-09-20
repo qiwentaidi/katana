@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	stringsutil "github.com/projectdiscovery/utils/strings"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 type Options struct {

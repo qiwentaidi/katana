@@ -16,10 +16,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/projectdiscovery/dsl"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/utils/extensions"
 	"github.com/projectdiscovery/utils/errkit"
 	fileutil "github.com/projectdiscovery/utils/file"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/utils/extensions"
 	"github.com/stoewer/go-strcase"
 	"github.com/valyala/fasttemplate"
 )
@@ -486,7 +486,7 @@ var (
 )
 
 // ignoreErr checks if the error is to be ignored or not
-// Reference: https://github.com/projectdiscovery/katana/pull/537
+// Reference: https://github.com/qiwentaidi/katana/pull/537
 func ignoreErr(err error) bool {
 	if showDSLErr {
 		return false

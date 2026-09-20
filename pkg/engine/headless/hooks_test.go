@@ -3,8 +3,8 @@ package headless
 import (
 	"testing"
 
-	"github.com/projectdiscovery/katana/pkg/engine/headless/browser"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/browser"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
 	"github.com/stretchr/testify/assert"
 )
 

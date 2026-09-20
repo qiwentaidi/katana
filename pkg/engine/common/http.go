@@ -10,11 +10,11 @@ import (
 
 	"github.com/projectdiscovery/fastdialer/fastdialer"
 	"github.com/projectdiscovery/fastdialer/fastdialer/ja3/impersonate"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/types"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"github.com/projectdiscovery/utils/errkit"
 	proxyutil "github.com/projectdiscovery/utils/proxy"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/types"
 )
 
 type RedirectCallback func(resp *http.Response, depth int)

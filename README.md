@@ -66,13 +66,13 @@ CGO_ENABLED=1 go build -o katana ./cmd/katana
 
 新增包：
 
-- `github.com/projectdiscovery/katana/pkg/apicontext`：构建、合并 API 上下文并导出 OpenAPI；
-- `github.com/projectdiscovery/katana/pkg/apiaudit`：执行授权对照实验。
+- `github.com/qiwentaidi/katana/pkg/apicontext`：构建、合并 API 上下文并导出 OpenAPI；
+- `github.com/qiwentaidi/katana/pkg/apiaudit`：执行授权对照实验。
 
-本 fork 暂时维持 Katana 原有的 Go 模块路径；其他项目应通过依赖替换指向本 fork 的固定提交版本，确保构建可复现。例如：
+本 fork 使用独立的 Go 模块路径，可以被其他项目直接依赖：
 
 ```go
-replace github.com/projectdiscovery/katana => github.com/qiwentaidi/katana v0.0.0-20260920065445-d6d4bef0f33f
+go get github.com/qiwentaidi/katana@latest
 ```
 
 ## 安全边界

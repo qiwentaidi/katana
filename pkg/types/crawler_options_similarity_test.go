@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/projectdiscovery/katana/pkg/similarity"
+	"github.com/qiwentaidi/katana/pkg/similarity"
 	"github.com/stretchr/testify/require"
 )
 

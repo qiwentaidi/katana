@@ -10,10 +10,10 @@ import (
 
 	"github.com/projectdiscovery/gologger"
 	"github.com/projectdiscovery/gologger/formatter"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	"github.com/projectdiscovery/utils/errkit"
 	fileutil "github.com/projectdiscovery/utils/file"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -48,7 +48,7 @@ func validateOptions(options *types.Options) error {
 	if options.Headless && options.HeadlessHybrid {
 		return errkit.New("flags -hl (headless) and -hh (hybrid) are mutually exclusive")
 	}
-	
+
 	// Warn if -headless or -hh is used with -cwu (Chrome WebSocket URL)
 	// The ChromeWSUrl takes precedence and pure headless engine will be used
 	if options.Headless && options.ChromeWSUrl != "" {

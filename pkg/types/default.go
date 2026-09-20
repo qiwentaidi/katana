@@ -1,6 +1,6 @@
 package types
 
-import "github.com/projectdiscovery/katana/pkg/utils/queue"
+import "github.com/qiwentaidi/katana/pkg/utils/queue"
 
 var DefaultOptions Options
 

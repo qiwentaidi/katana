@@ -6,10 +6,10 @@ import (
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/browser"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
-	utilsformfill "github.com/projectdiscovery/katana/pkg/utils"
 	mapsutil "github.com/projectdiscovery/utils/maps"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/browser"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
+	utilsformfill "github.com/qiwentaidi/katana/pkg/utils"
 )
 
 func deriveName(e *types.HTMLElement) string {

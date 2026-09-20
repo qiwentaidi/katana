@@ -6,11 +6,6 @@ import (
 	"strconv"
 
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/engine"
-	"github.com/projectdiscovery/katana/pkg/engine/headless"
-	"github.com/projectdiscovery/katana/pkg/engine/hybrid"
-	"github.com/projectdiscovery/katana/pkg/engine/standard"
-	"github.com/projectdiscovery/katana/pkg/types"
 	"github.com/projectdiscovery/mapcidr"
 	"github.com/projectdiscovery/mapcidr/asn"
 	"github.com/projectdiscovery/networkpolicy"
@@ -19,6 +14,11 @@ import (
 	iputil "github.com/projectdiscovery/utils/ip"
 	mapsutil "github.com/projectdiscovery/utils/maps"
 	updateutils "github.com/projectdiscovery/utils/update"
+	"github.com/qiwentaidi/katana/pkg/engine"
+	"github.com/qiwentaidi/katana/pkg/engine/headless"
+	"github.com/qiwentaidi/katana/pkg/engine/hybrid"
+	"github.com/qiwentaidi/katana/pkg/engine/standard"
+	"github.com/qiwentaidi/katana/pkg/types"
 	"go.uber.org/multierr"
 )
 
@@ -93,7 +93,7 @@ func New(options *types.Options) (*Runner, error) {
 	var crawler engine.Engine
 
 	switch {
-case options.ChromeWSUrl != "":
+	case options.ChromeWSUrl != "":
 		// When connecting to existing browser via WebSocket URL,
 		// use pure headless engine with advanced crawling features
 		crawler, err = headless.New(crawlerOptions)

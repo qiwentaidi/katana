@@ -6,12 +6,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils/extensions"
-	"github.com/projectdiscovery/katana/pkg/utils/queue"
-	"github.com/projectdiscovery/katana/pkg/utils/scope"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils/extensions"
+	"github.com/qiwentaidi/katana/pkg/utils/queue"
+	"github.com/qiwentaidi/katana/pkg/utils/scope"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,9 +23,9 @@ func newMockFilter() *mockFilter {
 	return &mockFilter{seen: make(map[string]bool)}
 }
 
-func (f *mockFilter) Close()                          {}
-func (f *mockFilter) UniqueContent(_ []byte) bool     { return true }
-func (f *mockFilter) IsCycle(_ string) bool            { return false }
+func (f *mockFilter) Close()                      {}
+func (f *mockFilter) UniqueContent(_ []byte) bool { return true }
+func (f *mockFilter) IsCycle(_ string) bool       { return false }
 func (f *mockFilter) UniqueURL(url string) bool {
 	if f.seen[url] {
 		return false

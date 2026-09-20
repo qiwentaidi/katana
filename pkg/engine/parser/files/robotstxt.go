@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"github.com/projectdiscovery/utils/errkit"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 type robotsTxtCrawler struct {

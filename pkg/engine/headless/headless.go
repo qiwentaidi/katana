@@ -10,14 +10,14 @@ import (
 
 	"github.com/lmittmann/tint"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/browser"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/captcha"
-	_ "github.com/projectdiscovery/katana/pkg/engine/headless/captcha/capsolver"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler"
-	"github.com/projectdiscovery/katana/pkg/engine/parser"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/browser"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/captcha"
+	_ "github.com/qiwentaidi/katana/pkg/engine/headless/captcha/capsolver"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler"
+	"github.com/qiwentaidi/katana/pkg/engine/parser"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 type Headless struct {

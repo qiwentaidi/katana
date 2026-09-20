@@ -8,11 +8,11 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	stringsutil "github.com/projectdiscovery/utils/strings"
 	urlutil "github.com/projectdiscovery/utils/url"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/utils"
 	"golang.org/x/net/html"
 )
 

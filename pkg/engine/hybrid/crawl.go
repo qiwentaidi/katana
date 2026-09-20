@@ -16,16 +16,16 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/apicontext"
-	"github.com/projectdiscovery/katana/pkg/engine/common"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"github.com/projectdiscovery/utils/errkit"
 	mapsutil "github.com/projectdiscovery/utils/maps"
 	sliceutil "github.com/projectdiscovery/utils/slice"
 	stringsutil "github.com/projectdiscovery/utils/strings"
 	urlutil "github.com/projectdiscovery/utils/url"
+	"github.com/qiwentaidi/katana/pkg/apicontext"
+	"github.com/qiwentaidi/katana/pkg/engine/common"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 func (c *Crawler) navigateRequest(s *common.CrawlSession, request *navigation.Request) (*navigation.Response, error) {

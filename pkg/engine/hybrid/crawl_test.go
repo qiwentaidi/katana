@@ -11,8 +11,8 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/rod/lib/proto"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
 	"github.com/stretchr/testify/require"
 )
 

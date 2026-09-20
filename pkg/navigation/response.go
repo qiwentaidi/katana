@@ -6,7 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/projectdiscovery/katana/pkg/apicontext"
+	"github.com/qiwentaidi/katana/pkg/apicontext"
 )
 
 type Headers map[string]string
@@ -29,21 +29,21 @@ func (h *Headers) MarshalJSON() ([]byte, error) {
 
 // Response is a response generated from crawler navigation
 type Response struct {
-	Resp               *http.Response    `json:"-"`
-	Depth              int               `json:"-"`
-	Reader             *goquery.Document `json:"-"`
-	StatusCode         int               `json:"status_code,omitempty"`
-	Headers            Headers           `json:"headers,omitempty"`
-	Body               string            `json:"body,omitempty"`
-	ContentLength      int64             `json:"content_length,omitempty"`
-	RootHostname       string            `json:"-"`
-	Technologies       []string          `json:"technologies,omitempty"`
-	Raw                string            `json:"raw,omitempty"`
-	Forms              []Form            `json:"forms,omitempty"`
+	Resp               *http.Response        `json:"-"`
+	Depth              int                   `json:"-"`
+	Reader             *goquery.Document     `json:"-"`
+	StatusCode         int                   `json:"status_code,omitempty"`
+	Headers            Headers               `json:"headers,omitempty"`
+	Body               string                `json:"body,omitempty"`
+	ContentLength      int64                 `json:"content_length,omitempty"`
+	RootHostname       string                `json:"-"`
+	Technologies       []string              `json:"technologies,omitempty"`
+	Raw                string                `json:"raw,omitempty"`
+	Forms              []Form                `json:"forms,omitempty"`
 	XhrRequests        []Request             `json:"xhr_requests,omitempty"`
 	APIContexts        []*apicontext.Context `json:"api_contexts,omitempty"`
-	StoredResponsePath string            `json:"stored_response_path,omitempty"`
-	KnowledgeBase      map[string]any    `json:"knowledgebase,omitempty"`
+	StoredResponsePath string                `json:"stored_response_path,omitempty"`
+	KnowledgeBase      map[string]any        `json:"knowledgebase,omitempty"`
 }
 
 func (n Response) AbsoluteURL(path string) string {

@@ -9,10 +9,10 @@ import (
 
 	graphlib "github.com/dominikbraun/graph"
 	"github.com/pkg/errors"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/browser"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/diagnostics"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/normalizer/simhash"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/browser"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/diagnostics"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/normalizer/simhash"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
 )
 
 var emptyPageHash = sha256Hash("")

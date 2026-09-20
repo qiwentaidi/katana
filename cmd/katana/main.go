@@ -12,16 +12,16 @@ import (
 
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/internal/runner"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
 	"github.com/projectdiscovery/utils/errkit"
 	fileutil "github.com/projectdiscovery/utils/file"
 	folderutil "github.com/projectdiscovery/utils/folder"
 	pprofutils "github.com/projectdiscovery/utils/pprof"
 	sliceutil "github.com/projectdiscovery/utils/slice"
 	"github.com/projectdiscovery/utils/structs"
+	"github.com/qiwentaidi/katana/internal/runner"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
 	"github.com/rs/xid"
 )
 

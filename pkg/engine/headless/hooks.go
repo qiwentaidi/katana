@@ -1,6 +1,6 @@
 package headless
 
-import "github.com/projectdiscovery/katana/pkg/engine/headless/crawler"
+import "github.com/qiwentaidi/katana/pkg/engine/headless/crawler"
 
 // Hooks re-exports crawler.Hooks so library users can configure headless
 // lifecycle callbacks without importing the internal crawler sub-package.

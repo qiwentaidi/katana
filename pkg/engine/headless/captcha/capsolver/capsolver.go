@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/projectdiscovery/katana/pkg/engine/headless/captcha"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/captcha"
 )
 
 const (

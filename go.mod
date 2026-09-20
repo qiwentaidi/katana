@@ -1,4 +1,4 @@
-module github.com/projectdiscovery/katana
+module github.com/qiwentaidi/katana
 
 go 1.26
 

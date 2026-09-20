@@ -8,7 +8,7 @@ import (
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	"github.com/pkg/errors"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
 )
 
 // CrawlGraph is a graph for storing state information during crawling

@@ -10,12 +10,12 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/projectdiscovery/katana/pkg/engine/common"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	"github.com/projectdiscovery/retryablehttp-go"
 	"github.com/projectdiscovery/utils/errkit"
 	mapsutil "github.com/projectdiscovery/utils/maps"
+	"github.com/qiwentaidi/katana/pkg/engine/common"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 // makeRequest makes a request to a URL returning a response interface.

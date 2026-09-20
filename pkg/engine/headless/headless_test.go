@@ -7,11 +7,11 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils"
-	"github.com/projectdiscovery/katana/pkg/utils/filters"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils"
+	"github.com/qiwentaidi/katana/pkg/utils/filters"
 	"github.com/stretchr/testify/require"
 )
 

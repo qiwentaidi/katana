@@ -12,14 +12,14 @@ import (
 	"github.com/go-rod/rod/lib/launcher/flags"
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/engine/common"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils"
 	"github.com/projectdiscovery/utils/chromeshell"
 	"github.com/projectdiscovery/utils/errkit"
 	urlutil "github.com/projectdiscovery/utils/url"
+	"github.com/qiwentaidi/katana/pkg/engine/common"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils"
 )
 
 // Crawler is a standard crawler instance
@@ -32,7 +32,7 @@ type Crawler struct {
 	// TODO: Remove the Chrome PID kill code in favor of using Leakless(true).
 	// This change will be made if there are no complaints about zombie Chrome processes.
 	// References:
-	// https://github.com/projectdiscovery/katana/issues/632
+	// https://github.com/qiwentaidi/katana/issues/632
 	// https://github.com/projectdiscovery/httpx/issues/1425
 	// previousPIDs map[int32]struct{} // track already running PIDs
 	tempDir string

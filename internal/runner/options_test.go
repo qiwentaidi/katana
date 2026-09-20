@@ -3,7 +3,7 @@ package runner
 import (
 	"testing"
 
-	"github.com/projectdiscovery/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/types"
 	"github.com/stretchr/testify/require"
 )
 

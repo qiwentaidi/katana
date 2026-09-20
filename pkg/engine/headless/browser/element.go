@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
 )
 
 const (

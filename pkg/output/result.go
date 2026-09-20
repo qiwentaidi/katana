@@ -3,7 +3,7 @@ package output
 import (
 	"time"
 
-	"github.com/projectdiscovery/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/navigation"
 )
 
 // Result of the crawling

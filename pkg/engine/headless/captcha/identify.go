@@ -2,7 +2,7 @@ package captcha
 
 import (
 	"github.com/go-rod/rod"
-	captchajs "github.com/projectdiscovery/katana/pkg/engine/headless/captcha/js"
+	captchajs "github.com/qiwentaidi/katana/pkg/engine/headless/captcha/js"
 )
 
 type Provider string

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/normalizer/simhash"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/normalizer/simhash"
 	"github.com/stretchr/testify/assert"
 )
 

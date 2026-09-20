@@ -8,7 +8,7 @@ import (
 	"github.com/go-rod/rod"
 	ditcaptcha "github.com/happyhackingspace/dit/captcha"
 	"github.com/projectdiscovery/gologger"
-	captchajs "github.com/projectdiscovery/katana/pkg/engine/headless/captcha/js"
+	captchajs "github.com/qiwentaidi/katana/pkg/engine/headless/captcha/js"
 )
 
 type Handler struct {

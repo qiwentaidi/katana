@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/projectdiscovery/fastdialer/fastdialer"
-	"github.com/projectdiscovery/katana/pkg/engine/parser"
-	"github.com/projectdiscovery/katana/pkg/types"
-	"github.com/projectdiscovery/katana/pkg/utils/extensions"
-	"github.com/projectdiscovery/katana/pkg/utils/scope"
 	"github.com/projectdiscovery/retryablehttp-go"
+	"github.com/qiwentaidi/katana/pkg/engine/parser"
+	"github.com/qiwentaidi/katana/pkg/types"
+	"github.com/qiwentaidi/katana/pkg/utils/extensions"
+	"github.com/qiwentaidi/katana/pkg/utils/scope"
 	"github.com/stretchr/testify/require"
 )
 

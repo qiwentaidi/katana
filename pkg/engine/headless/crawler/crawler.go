@@ -19,14 +19,14 @@ import (
 	"github.com/happyhackingspace/dit"
 	"github.com/pkg/errors"
 	"github.com/projectdiscovery/gologger"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/browser"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/captcha"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/diagnostics"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/normalizer"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/crawler/normalizer/simhash"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/graph"
-	"github.com/projectdiscovery/katana/pkg/engine/headless/types"
-	"github.com/projectdiscovery/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/browser"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/captcha"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/diagnostics"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/normalizer"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/crawler/normalizer/simhash"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/graph"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/types"
+	"github.com/qiwentaidi/katana/pkg/output"
 )
 
 type Crawler struct {

@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/projectdiscovery/katana/pkg/navigation"
-	"github.com/projectdiscovery/katana/pkg/output"
 	urlutil "github.com/projectdiscovery/utils/url"
+	"github.com/qiwentaidi/katana/pkg/navigation"
+	"github.com/qiwentaidi/katana/pkg/output"
 	"github.com/stretchr/testify/require"
 )
 

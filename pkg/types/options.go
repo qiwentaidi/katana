@@ -10,9 +10,9 @@ import (
 	"github.com/projectdiscovery/goflags"
 	"github.com/projectdiscovery/gologger"
 	"github.com/projectdiscovery/gologger/levels"
-	"github.com/projectdiscovery/katana/pkg/output"
 	fileutil "github.com/projectdiscovery/utils/file"
 	logutil "github.com/projectdiscovery/utils/log"
+	"github.com/qiwentaidi/katana/pkg/output"
 )
 
 // OnResultCallback (output.Result)

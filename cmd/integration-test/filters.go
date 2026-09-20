@@ -9,9 +9,9 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/projectdiscovery/katana/internal/runner"
-	"github.com/projectdiscovery/katana/pkg/output"
-	"github.com/projectdiscovery/katana/pkg/types"
+	"github.com/qiwentaidi/katana/internal/runner"
+	"github.com/qiwentaidi/katana/pkg/output"
+	"github.com/qiwentaidi/katana/pkg/types"
 )
 
 var filtersTestcases = map[string]TestCase{

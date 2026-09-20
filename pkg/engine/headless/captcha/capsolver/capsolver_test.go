@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/projectdiscovery/katana/pkg/engine/headless/captcha"
+	"github.com/qiwentaidi/katana/pkg/engine/headless/captcha"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -3,8 +3,8 @@ package files
 import (
 	"context"
 
-	"github.com/projectdiscovery/katana/pkg/navigation"
 	"github.com/projectdiscovery/retryablehttp-go"
+	"github.com/qiwentaidi/katana/pkg/navigation"
 )
 
 type visitFunc func(ctx context.Context, URL string) ([]*navigation.Request, error)
