@@ -3,7 +3,7 @@
   <br>
 </h1>
 
-<h4 align="center">A next-generation crawling and spidering framework</h4>
+<h4 align="center">An API-aware crawling and API asset discovery framework</h4>
 
 <p align="center">
 <a href="https://goreportcard.com/report/github.com/projectdiscovery/katana"><img src="https://goreportcard.com/badge/github.com/projectdiscovery/katana"></a>
@@ -15,6 +15,7 @@
 
 <p align="center">
   <a href="#features">Features</a> •
+  <a href="#trailblazer-api-asset-extensions">API Asset Extensions</a> •
   <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#scope-control">Scope</a> •
@@ -23,6 +24,42 @@
   <a href="https://discord.gg/projectdiscovery">Join Discord</a>
 </p>
 
+# Trailblazer API Asset Extensions
+
+This repository is a Trailblazer fork of [ProjectDiscovery Katana](https://github.com/projectdiscovery/katana). It keeps Katana's crawler and headless browser capabilities, then adds an API-asset layer for authorized security testing and API documentation.
+
+## What this fork adds
+
+- **Runtime API context capture** — while hybrid/headless crawling, capture full XHR and Fetch request/response context instead of only URLs: method, templated path, parameters, inferred request/response schemas, authentication indicators, and evidence linking the request to its source page.
+- **Safe handling of sensitive values** — recognized credentials and sensitive request values are redacted before being retained in the API context output.
+- **Operation-level API asset store** — merge repeated observations of the same `method + pathTemplate`, preserving representative successful responses, evidence, schema details, and the observation count.
+- **Observed API Docs / OpenAPI 3.1** — the Go API can render merged observations as an OpenAPI 3.1 document. Inferred fields are explicitly labelled with confidence, evidence, and observation metadata rather than being presented as an authoritative contract.
+- **Authorization comparison experiment** — an opt-in library capability that replays a credential-stripped version of an observed authenticated request and compares it with its baseline. It rejects trivial bodies, common error pages, and generic JSON to reduce false positives. Low-privilege testing and IDOR mutations are deliberately out of scope.
+
+## Capture API contexts from the CLI
+
+API context capture requires hybrid/headless crawling and explicit authorization for the target.
+
+```console
+katana -u https://target.example -headless -system-chrome -api-capture -jsonl -o api-contexts.jsonl
+```
+
+The JSONL response contains an `api_contexts` field when contexts are observed. Use `-apic` as the short form of `-api-capture`.
+
+## Use the API-asset features as a Go library
+
+The fork exposes `pkg/apicontext` for context building, merging, and OpenAPI rendering, and `pkg/apiaudit` for authorization comparison. The authorization experiment is not enabled by the CLI and must only be invoked for targets you are authorized to test.
+
+## Building this fork
+
+Clone this fork and build the selected branch; upstream release binaries and Docker images do not contain these Trailblazer additions.
+
+```console
+git clone https://github.com/qiwentaidi/katana.git
+cd katana
+git checkout trailblazer-dev
+CGO_ENABLED=1 go build -o katana ./cmd/katana
+```
 
 # Features
 
@@ -41,7 +78,7 @@
 
 ## Installation
 
-katana requires Go 1.26+ to install successfully. If you encounter any installation issues, we recommend trying with the latest available version of Go, as the minimum required version may have changed. Run the command below or download a pre-compiled binary from the [release page](https://github.com/projectdiscovery/katana/releases).
+katana requires Go 1.26+ to build successfully. For this fork, use the clone-and-build instructions above so that the Trailblazer additions are included. The upstream installation options below install the official Katana build only.
 
 ```console
 CGO_ENABLED=1 go install github.com/projectdiscovery/katana/cmd/katana@latest
@@ -182,6 +219,7 @@ HEADLESS:
    -dwt, -dom-wait-time int          time in seconds to wait after page load when using domcontentloaded strategy (default 5)
    -csp, -captcha-solver-provider string  captcha solver provider (e.g. capsolver)
    -csk, -captcha-solver-key string       captcha solver provider api key
+   -apic, -api-capture                     capture full API request/response contexts in JSONL output
 
 SCOPE:
    -cs, -crawl-scope string[]       in scope url regex to be followed by crawler
