@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// OpenAPI extension keys used to carry inferred (non-authoritative) data.
+// Plain-name extension keys used to carry inferred (non-authoritative) data.
 // Observed API Docs are generated from runtime traffic, so everything that
-// was inferred rather than contractually declared lives in extensions.
+// was inferred rather than contractually declared lives in these fields.
 const (
-	ExtConfidence   = "x-trailblazer-confidence"
-	ExtEvidence     = "x-trailblazer-evidence"
-	ExtObservations = "x-trailblazer-observations"
+	ExtConfidence   = "confidence"
+	ExtEvidence     = "evidence"
+	ExtObservations = "observations"
 )
 
 // OpenAPIDocument is a minimal OpenAPI 3.1 document built from a Store.
@@ -40,8 +40,8 @@ type OpenAPIInfo struct {
 
 // ToOpenAPI renders the merged store as an OpenAPI 3.1 document.
 // Inferred attributes (confidence, evidence, observation counts) are placed
-// in x-trailblazer-* extension fields so the document stays valid OpenAPI
-// while remaining honest about what was observed vs declared.
+// in dedicated plain-name fields so the document stays honest about what was
+// observed vs declared.
 func ToOpenAPI(store *Store, title string) *OpenAPIDocument {
 	if strings.TrimSpace(title) == "" {
 		title = "Observed API Docs"

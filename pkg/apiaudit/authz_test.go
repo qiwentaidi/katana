@@ -122,6 +122,16 @@ func TestExperimentInconclusiveWithoutBaseline(t *testing.T) {
 	}
 }
 
+func TestExperimentHandlesNilContext(t *testing.T) {
+	verdict := RunAuthorizationExperiment(nil, func(*http.Request) (*http.Response, []byte, error) {
+		t.Fatal("sender must not be called for a nil context")
+		return nil, nil, nil
+	})
+	if verdict.Conclusive || !strings.Contains(strings.Join(verdict.Reasons, ""), "无观测上下文") {
+		t.Fatalf("unexpected nil-context verdict: %+v", verdict)
+	}
+}
+
 func TestAnonymousRequestStripsCredentials(t *testing.T) {
 	ctx := authedContext("http://example.com")
 	var seenAuth, seenCookie, seenReqID string

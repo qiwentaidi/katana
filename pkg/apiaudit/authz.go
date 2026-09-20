@@ -66,14 +66,12 @@ const fieldSimilarityThreshold = 0.6
 //   - anonymous 2xx, JSON field overlap < 0.6   -> not vulnerable
 //   - anonymous 2xx, same type, overlap >= 0.6  -> vulnerable
 func RunAuthorizationExperiment(ctx *apicontext.Context, send Sender) AuthzVerdict {
+	if ctx == nil {
+		return AuthzVerdict{Reasons: []string{"无观测上下文"}}
+	}
 	verdict := AuthzVerdict{
 		BaselineStatus: ctx.Response.Status,
 		BaselineType:   ctx.Response.ContentType,
-	}
-
-	if ctx == nil {
-		verdict.Reasons = append(verdict.Reasons, "无观测上下文")
-		return verdict
 	}
 	if !ctx.Auth.Present {
 		verdict.Reasons = append(verdict.Reasons, "爬取时未观测到认证凭据，缺少带凭据基线，无法对照")
