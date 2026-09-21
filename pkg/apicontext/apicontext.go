@@ -35,7 +35,7 @@ type Context struct {
 	ObservedURL string      `json:"observedUrl"`
 	Parameters  []Parameter `json:"parameters,omitempty"`
 	RequestBody *BodySchema `json:"requestBody,omitempty"`
-	// Headers are the observed request headers with sensitive values redacted.
+	// Headers are the observed request headers with their original values.
 	Headers  map[string]string `json:"headers,omitempty"`
 	Auth     AuthContext       `json:"auth"`
 	Response ResponseContext   `json:"response"`
@@ -57,7 +57,7 @@ type Parameter struct {
 }
 
 // BodySchema captures content type, an inferred field-type map and an
-// example payload (sensitive fields redacted).
+// example payload with original field values.
 type BodySchema struct {
 	ContentType string            `json:"contentType"`
 	Schema      map[string]string `json:"schema,omitempty"`
@@ -65,7 +65,7 @@ type BodySchema struct {
 }
 
 // AuthContext describes the authentication evidence observed on the request.
-// Credentials are never stored, only their mode and presence.
+// Credentials are preserved in Context.Headers; this describes their mode and presence.
 type AuthContext struct {
 	Mode     string `json:"mode"` // cookie | bearer | custom | none
 	Present  bool   `json:"present"`
@@ -103,9 +103,6 @@ type Observation struct {
 // maxSchemaBodySize caps response/request bodies used for schema inference.
 const maxSchemaBodySize = 256 * 1024
 
-// maxExampleStringLength caps string values kept in examples.
-const maxExampleStringLength = 256
-
 var (
 	numericSegment = regexp.MustCompile(`^\d+$`)
 	uuidSegment    = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
@@ -116,7 +113,7 @@ var (
 	opaqueCandidate = regexp.MustCompile(`^[a-zA-Z0-9_-]{12,}$`)
 )
 
-// sensitiveName matches header / parameter names whose values must be redacted.
+// sensitiveName identifies custom authentication headers.
 var sensitiveName = regexp.MustCompile(`(?i)(pass(word|wd)?|secret|token|api[-_]?key|session|cookie|authorization|credential|private[-_]?key|access[-_]?key)`)
 
 // Build converts a raw network Observation into an APIContext.
@@ -140,7 +137,7 @@ func Build(obs Observation) *Context {
 		p := Parameter{
 			Name:  name,
 			In:    "query",
-			Value: redactIfSensitive(name, value),
+			Value: value,
 			Type:  guessScalarType(value),
 		}
 		params = append(params, p)
@@ -169,7 +166,7 @@ func Build(obs Observation) *Context {
 		ObservedURL:  obs.URL,
 		Parameters:   params,
 		RequestBody:  reqBody,
-		Headers:      redactHeaders(obs.ReqHeaders),
+		Headers:      copyHeaders(obs.ReqHeaders),
 		Auth:         auth,
 		Response:     resp,
 		Evidence: []Evidence{{
@@ -233,47 +230,29 @@ func detectAuth(headers map[string]string) AuthContext {
 		switch {
 		case lower == "authorization":
 			if strings.HasPrefix(strings.ToLower(strings.TrimSpace(value)), "bearer ") {
-				return AuthContext{Mode: "bearer", Present: true, Redacted: true}
+				return AuthContext{Mode: "bearer", Present: true, Redacted: false}
 			}
-			return AuthContext{Mode: "custom", Present: true, Redacted: true}
+			return AuthContext{Mode: "custom", Present: true, Redacted: false}
 		case lower == "cookie":
-			return AuthContext{Mode: "cookie", Present: true, Redacted: true}
+			return AuthContext{Mode: "cookie", Present: true, Redacted: false}
 		case sensitiveName.MatchString(name) && strings.TrimSpace(value) != "":
 			// custom token-style header, e.g. X-Api-Key, X-Session-Token
-			return AuthContext{Mode: "custom", Present: true, Redacted: true}
+			return AuthContext{Mode: "custom", Present: true, Redacted: false}
 		}
 	}
 	return AuthContext{Mode: "none", Present: false}
 }
 
-// redactHeaders returns a copy of headers with sensitive values replaced.
-func redactHeaders(headers map[string]string) map[string]string {
+// copyHeaders copies observed request headers without changing their values.
+func copyHeaders(headers map[string]string) map[string]string {
 	if len(headers) == 0 {
 		return nil
 	}
 	out := make(map[string]string, len(headers))
 	for name, value := range headers {
-		lower := strings.ToLower(name)
-		if lower == "cookie" || lower == "authorization" || sensitiveName.MatchString(name) {
-			out[lower] = "[redacted]"
-			continue
-		}
-		out[lower] = value
+		out[strings.ToLower(name)] = value
 	}
 	return out
-}
-
-func redactIfSensitive(name, value string) string {
-	if value == "" {
-		return ""
-	}
-	if sensitiveName.MatchString(name) {
-		return "[redacted]"
-	}
-	if len(value) > maxExampleStringLength {
-		return value[:maxExampleStringLength] + "..."
-	}
-	return value
 }
 
 // inferBodySchema builds a BodySchema for an observed request body.
@@ -286,7 +265,7 @@ func inferBodySchema(contentType string, body []byte) *BodySchema {
 		var parsed any
 		if err := json.Unmarshal(body, &parsed); err == nil {
 			bs.Schema = schemaOf(parsed)
-			bs.Example = sanitizedExample(parsed)
+			bs.Example = parsed
 			if bs.ContentType == "" {
 				bs.ContentType = "application/json"
 			}
@@ -303,7 +282,7 @@ func inferBodySchema(contentType string, body []byte) *BodySchema {
 					value = v[0]
 				}
 				bs.Schema[name] = guessScalarType(value)
-				example[name] = redactIfSensitive(name, value)
+				example[name] = value
 			}
 			bs.Example = example
 		}
@@ -361,35 +340,6 @@ func jsonTypeName(value any) string {
 		return "object"
 	default:
 		return "unknown"
-	}
-}
-
-// sanitizedExample produces an example value with sensitive fields redacted
-// and long strings truncated.
-func sanitizedExample(value any) any {
-	switch v := value.(type) {
-	case map[string]any:
-		out := make(map[string]any, len(v))
-		for key, item := range v {
-			if s, ok := item.(string); ok && sensitiveName.MatchString(key) && s != "" {
-				out[key] = "[redacted]"
-				continue
-			}
-			out[key] = sanitizedExample(item)
-		}
-		return out
-	case []any:
-		if len(v) > 0 {
-			return []any{sanitizedExample(v[0])}
-		}
-		return []any{}
-	case string:
-		if len(v) > maxExampleStringLength {
-			return v[:maxExampleStringLength] + "..."
-		}
-		return v
-	default:
-		return v
 	}
 }
 

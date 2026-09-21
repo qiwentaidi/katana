@@ -49,14 +49,14 @@ func TestBuildBasicXHR(t *testing.T) {
 		t.Errorf("path param missing or wrong: %+v", pathParam)
 	}
 
-	// sensitive query param redacted
+	// sensitive query param preserved
 	for _, p := range ctx.Parameters {
-		if p.Name == "token" && p.Value != "[redacted]" {
-			t.Errorf("token param not redacted: %q", p.Value)
+		if p.Name == "token" && p.Value != "abc123" {
+			t.Errorf("token param not preserved: %q", p.Value)
 		}
 	}
 
-	// request body schema + redaction
+	// request body schema + original example
 	if ctx.RequestBody == nil {
 		t.Fatal("requestBody is nil")
 	}
@@ -64,20 +64,20 @@ func TestBuildBasicXHR(t *testing.T) {
 		t.Errorf("roleId schema = %q, want integer", ctx.RequestBody.Schema["roleId"])
 	}
 	if example, ok := ctx.RequestBody.Example.(map[string]any); ok {
-		if example["password"] != "[redacted]" {
-			t.Errorf("password example not redacted: %v", example["password"])
+		if example["password"] != "s3cret" {
+			t.Errorf("password example not preserved: %v", example["password"])
 		}
 	} else {
 		t.Errorf("example is not an object: %T", ctx.RequestBody.Example)
 	}
 
 	// auth: bearer wins over cookie by iteration order is not guaranteed,
-	// but both are present -> either cookie or bearer, must be present+redacted
-	if !ctx.Auth.Present || !ctx.Auth.Redacted || ctx.Auth.Mode == "none" {
-		t.Errorf("auth = %+v, want present+redacted", ctx.Auth)
+	// but both are present -> either cookie or bearer, must be present without redaction
+	if !ctx.Auth.Present || ctx.Auth.Redacted || ctx.Auth.Mode == "none" {
+		t.Errorf("auth = %+v, want present without redaction", ctx.Auth)
 	}
-	if ctx.Headers["authorization"] != "[redacted]" || ctx.Headers["cookie"] != "[redacted]" {
-		t.Errorf("sensitive headers not redacted: %+v", ctx.Headers)
+	if ctx.Headers["authorization"] != obs.ReqHeaders["Authorization"] || ctx.Headers["cookie"] != obs.ReqHeaders["Cookie"] {
+		t.Errorf("sensitive headers not preserved: %+v", ctx.Headers)
 	}
 
 	// response schema
@@ -137,7 +137,19 @@ func TestBuildFormBody(t *testing.T) {
 	if ctx.RequestBody == nil || ctx.RequestBody.Schema["username"] != "string" {
 		t.Fatalf("form body schema wrong: %+v", ctx.RequestBody)
 	}
-	if example, ok := ctx.RequestBody.Example.(map[string]any); !ok || example["password"] != "[redacted]" {
-		t.Errorf("form example not redacted: %+v", ctx.RequestBody.Example)
+	if example, ok := ctx.RequestBody.Example.(map[string]any); !ok || example["password"] != "hunter2" {
+		t.Errorf("form example not preserved: %+v", ctx.RequestBody.Example)
+	}
+}
+
+func TestBuildPreservesNestedAndLongSensitiveValues(t *testing.T) {
+	long := strings.Repeat("a", 300)
+	ctx := Build(Observation{URL: "https://example.test/api?token=" + long, Method: "POST", PostData: `{"nested":{"password":"secret"},"tokens":["first","second"],"api_key":"` + long + `"}`, ReqHeaders: map[string]string{"Content-Type": "application/json", "X-Api-Key": long}})
+	if ctx.Parameters[0].Value != long || ctx.Headers["x-api-key"] != long || ctx.Auth.Redacted {
+		t.Fatalf("credentials changed: %+v", ctx)
+	}
+	example := ctx.RequestBody.Example.(map[string]any)
+	if example["api_key"] != long || example["nested"].(map[string]any)["password"] != "secret" || len(example["tokens"].([]any)) != 2 {
+		t.Fatalf("example changed: %+v", example)
 	}
 }
