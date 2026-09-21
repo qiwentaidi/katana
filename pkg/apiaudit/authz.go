@@ -13,8 +13,11 @@ package apiaudit
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -26,8 +29,23 @@ import (
 // plugged into any HTTP client (retryablehttp, resty, ...).
 type Sender func(req *http.Request) (*http.Response, []byte, error)
 
+// HTTPExchange contains readable HTTP messages reconstructed from captured traffic.
+type HTTPExchange struct {
+	Method               string `json:"method,omitempty"`
+	URL                  string `json:"url,omitempty"`
+	Request              string `json:"request,omitempty"`
+	Response             string `json:"response,omitempty"`
+	StatusCode           int    `json:"statusCode"`
+	ContentType          string `json:"contentType,omitempty"`
+	ResponseLength       int    `json:"responseLength"`
+	ResponseBodyRecorded bool   `json:"responseBodyRecorded"`
+}
+
 // AuthzVerdict is the outcome of one authorization comparative experiment.
 type AuthzVerdict struct {
+	Baseline  *HTTPExchange `json:"baseline,omitempty"`
+	Anonymous *HTTPExchange `json:"anonymous,omitempty"`
+
 	// Conclusive is false when the experiment cannot decide (no baseline,
 	// baseline not successful, anonymous request failed, ...).
 	Conclusive bool `json:"conclusive"`
@@ -44,7 +62,8 @@ type AuthzVerdict struct {
 	AnonType       string `json:"anonType,omitempty"`
 	// FieldSimilarity is the Jaccard overlap between the anonymous response
 	// JSON top-level fields and the baseline schema fields.
-	FieldSimilarity float64 `json:"fieldSimilarity"`
+	FieldSimilarity          float64 `json:"fieldSimilarity"`
+	FieldComparisonPerformed bool    `json:"fieldComparisonPerformed"`
 }
 
 // minAnonBodyBytes rejects trivial bodies ({"code":0}, empty pages) before
@@ -69,9 +88,27 @@ func RunAuthorizationExperiment(ctx *apicontext.Context, send Sender) AuthzVerdi
 	if ctx == nil {
 		return AuthzVerdict{Reasons: []string{"无观测上下文"}}
 	}
+	// Use the intact selected observation, never merged request/response metadata.
+	if ctx.Captured != nil {
+		ctx = apicontext.Build(*ctx.Captured)
+	}
 	verdict := AuthzVerdict{
 		BaselineStatus: ctx.Response.Status,
 		BaselineType:   ctx.Response.ContentType,
+	}
+	if ctx.Captured != nil {
+		obs := ctx.Captured
+		req, err := http.NewRequest(obs.Method, obs.URL, strings.NewReader(obs.PostData))
+		if err == nil {
+			for name, value := range obs.ReqHeaders {
+				req.Header.Set(name, value)
+			}
+			response := &http.Response{StatusCode: obs.RespStatus, Status: fmt.Sprintf("%d %s", obs.RespStatus, http.StatusText(obs.RespStatus)), Proto: "HTTP/1.1", ProtoMajor: 1, ProtoMinor: 1, Header: make(http.Header)}
+			for name, value := range obs.RespHeaders {
+				response.Header.Set(name, value)
+			}
+			verdict.Baseline = exchange(req, response, obs.RespBody)
+		}
 	}
 	if !ctx.Auth.Present {
 		verdict.Reasons = append(verdict.Reasons, "爬取时未观测到认证凭据，缺少带凭据基线，无法对照")
@@ -87,12 +124,23 @@ func RunAuthorizationExperiment(ctx *apicontext.Context, send Sender) AuthzVerdi
 		verdict.Reasons = append(verdict.Reasons, "匿名变体构造失败: "+err.Error())
 		return verdict
 	}
+	verdict.Anonymous = exchange(req, nil, nil)
 	resp, body, err := send(req)
 	if err != nil {
 		verdict.Reasons = append(verdict.Reasons, "匿名变体请求失败: "+err.Error())
 		return verdict
 	}
-	defer resp.Body.Close()
+	if resp == nil {
+		verdict.Reasons = append(verdict.Reasons, "匿名变体未返回响应")
+		return verdict
+	}
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
+	captured := exchange(nil, resp, body)
+	captured.Request = verdict.Anonymous.Request
+	captured.Method, captured.URL = verdict.Anonymous.Method, verdict.Anonymous.URL
+	verdict.Anonymous = captured
 
 	verdict.Conclusive = true
 	verdict.AnonStatus = resp.StatusCode
@@ -122,6 +170,7 @@ func RunAuthorizationExperiment(ctx *apicontext.Context, send Sender) AuthzVerdi
 	if strings.Contains(verdict.BaselineType, "json") && len(ctx.Response.Schema) > 0 {
 		similarity := jsonFieldSimilarity(ctx.Response.Schema, body)
 		verdict.FieldSimilarity = similarity
+		verdict.FieldComparisonPerformed = true
 		if similarity < fieldSimilarityThreshold {
 			verdict.Reasons = append(verdict.Reasons,
 				"匿名响应业务字段重合度过低，与基线不是同一份数据")
@@ -147,7 +196,9 @@ func RunAuthorizationExperiment(ctx *apicontext.Context, send Sender) AuthzVerdi
 // header (Cookie, Authorization, token-style custom headers) removed.
 func BuildAnonymousRequest(ctx *apicontext.Context) (*http.Request, error) {
 	var body io.Reader
-	if ctx.RequestBody != nil && ctx.RequestBody.Example != nil {
+	if ctx.Captured != nil {
+		body = strings.NewReader(ctx.Captured.PostData)
+	} else if ctx.RequestBody != nil && ctx.RequestBody.Example != nil {
 		switch strings.ToLower(ctx.Method) {
 		case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete:
 			raw, err := json.Marshal(ctx.RequestBody.Example)
@@ -163,14 +214,13 @@ func BuildAnonymousRequest(ctx *apicontext.Context) (*http.Request, error) {
 	}
 	for name, value := range ctx.Headers {
 		lower := strings.ToLower(name)
-		// stored headers already have credentials replaced by [redacted];
-		// skip both the redacted placeholders and any credential carrier
-		if value == "[redacted]" || lower == "cookie" || lower == "authorization" {
+		// Remove credential headers, including custom token headers with raw values.
+		if value == "[redacted]" || lower == "cookie" || lower == "authorization" || credentialHeader.MatchString(lower) {
 			continue
 		}
 		req.Header.Set(name, value)
 	}
-	if body != nil && ctx.RequestBody.ContentType != "" {
+	if body != nil && ctx.RequestBody != nil && ctx.RequestBody.ContentType != "" {
 		req.Header.Set("Content-Type", ctx.RequestBody.ContentType)
 	}
 	return req, nil
@@ -235,3 +285,28 @@ func mediaTypeOf(raw string) string {
 }
 
 func itoa(i int) string { return strconv.Itoa(i) }
+
+var credentialHeader = regexp.MustCompile(`(?i)(pass(word|wd)?|secret|token|api[-_]?key|session|cookie|authorization|credential|private[-_]?key|access[-_]?key)`)
+
+func exchange(req *http.Request, resp *http.Response, body []byte) *HTTPExchange {
+	result := &HTTPExchange{}
+	if req != nil {
+		result.Method, result.URL = req.Method, req.URL.String()
+		if raw, err := httputil.DumpRequestOut(req, true); err == nil {
+			result.Request = string(raw)
+		}
+	}
+	if resp != nil {
+		result.StatusCode = resp.StatusCode
+		result.ContentType = mediaTypeOf(resp.Header.Get("Content-Type"))
+		result.ResponseLength = len(body)
+		result.ResponseBodyRecorded = body != nil
+		copy := *resp
+		copy.Body = io.NopCloser(bytes.NewReader(body))
+		copy.ContentLength = int64(len(body))
+		if raw, err := httputil.DumpResponse(&copy, true); err == nil {
+			result.Response = string(raw)
+		}
+	}
+	return result
+}

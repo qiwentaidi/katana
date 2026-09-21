@@ -76,6 +76,20 @@ func mergeContext(dst, src *Context) {
 		dst.Observations = 1
 	}
 
+	// Keep a complete authenticated baseline instead of mixing requests and responses.
+	if src.Captured != nil {
+		oldAuth := false
+		oldOK := false
+		if dst.Captured != nil {
+			oldAuth = detectAuth(dst.Captured.ReqHeaders).Present
+			oldOK = dst.Captured.RespStatus >= 200 && dst.Captured.RespStatus < 300
+		}
+		newAuth := detectAuth(src.Captured.ReqHeaders).Present
+		newOK := src.Captured.RespStatus >= 200 && src.Captured.RespStatus < 300
+		if dst.Captured == nil || (!oldAuth && newAuth) || (oldAuth == newAuth && !oldOK && newOK) {
+			dst.Captured = src.Captured
+		}
+	}
 	dst.Parameters = mergeParameters(dst.Parameters, src.Parameters)
 	dst.Headers = mergeHeaders(dst.Headers, src.Headers)
 	dst.Evidence = mergeEvidence(dst.Evidence, src.Evidence)

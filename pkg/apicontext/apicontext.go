@@ -21,6 +21,8 @@ import (
 
 // Context is a single observed API operation with its full context.
 type Context struct {
+	// Captured keeps one intact observation; merged schemas are not replay evidence.
+	Captured *Observation `json:"captured,omitempty"`
 	// OperationID is a stable identity for the operation:
 	// sha256(method + pathTemplate), hex-truncated. Auth mode is
 	// deliberately not part of the identity so anonymous probes and
@@ -160,7 +162,14 @@ func Build(obs Observation) *Context {
 
 	auth := detectAuth(obs.ReqHeaders)
 
+	captured := obs
+	captured.ReqHeaders = copyHeaders(obs.ReqHeaders)
+	captured.RespHeaders = copyHeaders(obs.RespHeaders)
+	if obs.RespBody != nil {
+		captured.RespBody = append([]byte{}, obs.RespBody...)
+	}
 	ctx := &Context{
+		Captured:     &captured,
 		Method:       method,
 		PathTemplate: pathTemplate,
 		ObservedURL:  obs.URL,

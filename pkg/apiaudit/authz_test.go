@@ -116,7 +116,7 @@ func TestExperimentInconclusiveWithoutBaseline(t *testing.T) {
 
 	// baseline not 2xx
 	bad := authedContext(srv.URL)
-	bad.Response.Status = 500
+	bad.Captured.RespStatus = 500
 	if v := RunAuthorizationExperiment(bad, send); v.Conclusive {
 		t.Errorf("non-2xx baseline must be inconclusive: %+v", v)
 	}
@@ -144,6 +144,7 @@ func TestAnonymousRequestStripsCredentials(t *testing.T) {
 	})
 	defer srv.Close()
 	ctx.ObservedURL = srv.URL + "/api/users/123"
+	ctx.Captured.URL = ctx.ObservedURL
 
 	RunAuthorizationExperiment(ctx, send)
 	if seenAuth != "" || seenCookie != "" {
@@ -167,5 +168,71 @@ func TestExperimentRejectsTrivialBody(t *testing.T) {
 	}
 	if !strings.Contains(strings.Join(verdict.Reasons, ""), "过短") {
 		t.Errorf("expected trivial-body reason: %+v", verdict.Reasons)
+	}
+}
+
+func TestExperimentPreservesBothExchangesAndRawFormBody(t *testing.T) {
+	const payload = "username=alice&note=a%2Bb"
+	const response = `{"id":123,"name":"alice","email":"a@b.c","role":"admin"}`
+	send, srv := senderFor(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		if string(body) != payload {
+			t.Errorf("form payload changed: %s", body)
+		}
+		if r.Header.Get("X-Api-Key") != "" {
+			t.Error("custom credential leaked into anonymous request")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("X-Evidence", "anonymous")
+		w.Write([]byte(response))
+	})
+	defer srv.Close()
+	ctx := apicontext.Build(apicontext.Observation{Method: "POST", URL: srv.URL + "/api/profile", PostData: payload, ReqHeaders: map[string]string{"Content-Type": "application/x-www-form-urlencoded", "X-Api-Key": "test-secret"}, RespStatus: 200, RespHeaders: map[string]string{"Content-Type": "application/json", "X-Evidence": "baseline"}, RespBody: []byte(response)})
+	verdict := RunAuthorizationExperiment(ctx, send)
+	if !verdict.Vulnerable || !verdict.FieldComparisonPerformed {
+		t.Fatalf("unexpected verdict: %+v", verdict)
+	}
+	for _, e := range []*HTTPExchange{verdict.Baseline, verdict.Anonymous} {
+		if e == nil || !strings.Contains(e.Request, payload) || !strings.Contains(e.Response, response) || e.ResponseLength != len(response) || !e.ResponseBodyRecorded {
+			t.Fatalf("missing exchange: %+v", e)
+		}
+	}
+	if !strings.Contains(verdict.Baseline.Request, "test-secret") || strings.Contains(verdict.Anonymous.Request, "test-secret") {
+		t.Fatalf("credential evidence wrong: %+v", verdict)
+	}
+}
+
+func TestExperimentUsesOneAuthenticatedObservationAfterMerge(t *testing.T) {
+	calls := 0
+	send, srv := senderFor(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if r.URL.Path != "/api/users/123" {
+			t.Errorf("wrong baseline URL: %s", r.URL)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"id":123,"name":"alice","email":"a@b.c","role":"admin"}`))
+	})
+	defer srv.Close()
+	store := apicontext.NewStore()
+	anonymous := apicontext.Build(apicontext.Observation{Method: "GET", URL: srv.URL + "/api/users/999", RespStatus: 200, RespHeaders: map[string]string{"Content-Type": "text/html"}, RespBody: []byte("anonymous page")})
+	store.Add(anonymous)
+	authed := authedContext(srv.URL)
+	store.Add(authed)
+	verdict := RunAuthorizationExperiment(store.Get(authed.OperationID), send)
+	if calls != 1 || !verdict.Vulnerable || !strings.Contains(verdict.Baseline.Response, `"name":"alice"`) || strings.Contains(verdict.Baseline.Response, "anonymous page") {
+		t.Fatalf("mixed baseline: %+v", verdict)
+	}
+}
+
+func TestEvidenceDistinguishesMissingAndEmptyResponseBody(t *testing.T) {
+	for _, body := range [][]byte{nil, {}} {
+		ctx := apicontext.Build(apicontext.Observation{Method: "GET", URL: "https://example.test/api", ReqHeaders: map[string]string{"Authorization": "Bearer test"}, RespStatus: 401, RespBody: body})
+		verdict := RunAuthorizationExperiment(ctx, func(*http.Request) (*http.Response, []byte, error) {
+			t.Fatal("failed baseline must not be replayed")
+			return nil, nil, nil
+		})
+		if verdict.Baseline == nil || verdict.Baseline.ResponseBodyRecorded != (body != nil) {
+			t.Fatalf("missing/empty distinction lost: %+v", verdict.Baseline)
+		}
 	}
 }
